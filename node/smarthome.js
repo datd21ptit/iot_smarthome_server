@@ -3,17 +3,21 @@ const AppRepository = require('./repository');
 const MqttClient = require('./mqtt'); // Import the MQTT setup function
 const app = express()
 
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yaml');
+const fs = require('fs');
+
 let mqtt_action_topic = "action";
 const appRepository = new AppRepository();
 const client = new MqttClient(appRepository); // Pass the database connection to mqtt.js
 
-app.get('/data', (req, res) => appRepository.getDashboardData(res));
+const file = fs.readFileSync('./apidoc.yaml', 'utf-8');
+const swaggerDocument = YAML.parse(file);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.get('/table/sensor', (req, res) => appRepository.getSensorTable(req, res));
+app.get('/dashboard', (req, res) => appRepository.getDashboardData(res));
 
-app.get('/table/action', (req, res) => appRepository.getActionTable(req, res));
-
-app.post('/action', (req, res) => {
+app.post('/dashboard', (req, res) => {
     let dat = {
         led: req.query.led,
         fan: req.query.fan,
@@ -22,6 +26,11 @@ app.post('/action', (req, res) => {
 
     client.publishAction(mqtt_action_topic, dat, res);
   });
+
+app.get('/table/sensor', (req, res) => appRepository.getSensorTable(req, res));
+
+app.get('/table/action', (req, res) => appRepository.getActionTable(req, res));
+
 
 const server = app.listen(3001, () => {
     console.log(`Express running → PORT ${server.address().port}`);

@@ -1,0 +1,316 @@
+openapi: 3.0.1
+info:
+  title: Smart Home API
+  description: |-
+    In this project, my smart home system contains two sensors (DHT11 and lux meter) and three devices (LED, fan, and relay). We have three screens:
+    1. **Dashboard Screen**: This screen displays the values of the sensors and includes three buttons to control the devices.
+    2. **Sensor Data Table**: This screen shows the values of the sensors.
+    3. **Device Controlling Data Table**: This screen shows the history of the device states (on or off).
+    This API allows users to interact with the smart home system. Users can retrieve data for each screen.
+  contact:
+    email: apiteam@swagger.io
+  version: "1.0.0"
+externalDocs:
+  description: Project github link
+  url: https://github.com/datd21ptit/iot_smart_home_app.git
+servers:
+  - url: http://localhost:3001
+tags:
+  - name: Dashboard
+    description: Everything for dashboard screen
+  - name: Sensor
+    description: Access to Sensor Table
+  - name: Device
+    description: Access to Device Table
+paths:
+  /dashboard:
+    get:
+      tags:
+        - Dashboard
+      summary: Get dashboard screen data
+      description: Get dashboard screen data
+      operationId: getDashboardData
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    led:
+                      type: integer
+                      example: 0
+                    fan:
+                      type: integer
+                      example: 1
+                    relay:
+                      type: integer
+                      example: 1
+                    listTem:
+                      type: array
+                      items:
+                        type: integer
+                      example: [31, 31, 32, ...]
+                    listLight:
+                      type: array
+                      items:
+                        type: integer
+                      example: [281, 280, 275, ...]
+                    listHumid:
+                      type: array
+                      items:
+                        type: integer
+                      example: [87, 87, 88, ...]
+                maxItems: 1
+        '404':
+          description: Not Found
+        '429':
+          description: Too Many Requests
+        default:
+          description: Default
+    post:
+      tags:
+        - Dashboard
+      summary: Control device
+      description: Modify device state
+      operationId: clickAction
+      parameters:
+        - name: led
+          in: query
+          description: The status of LED device
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: fan
+          in: query
+          description: The status of the fan device
+          required: true
+          schema:
+            type: integer
+            example: 0
+        - name: relay
+          in: query
+          description: The status of the relay device
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Modify successfully
+  /table/sensor:
+    get:
+      tags:
+        - Sensor
+      summary: Get sensor table
+      description: Get sensor value table
+      operationId: getSensorTable
+      parameters:
+        - name: page
+          in: query
+          description: Page number of table
+          required: true
+          schema:
+            type: integer
+            default: 1
+            example: 1
+        - name: temp
+          in: query
+          description: Temperature filter
+          required: false
+          schema:
+            type: integer
+            default: null
+            example: 30
+        - name: humid
+          in: query
+          description: Humidity filter
+          required: false
+          schema:
+            type: integer
+            default: null
+        - name: light
+          in: query
+          description: Brightness filter
+          required: false
+          schema:
+            type: integer
+            default: null
+        - name: time
+          in: query
+          description: Date filter
+          required: false
+          schema:
+            type: string
+            example: "08/25/2024"
+      responses:
+        '200':
+          description: successful operation, return 12 row of table
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 839
+                  totalRows:
+                    type: integer
+                    example: 10060
+                  data:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: string
+                    example:
+                      - ["22613", "30", "94", "264", "08-25 21:59:03"]
+                      - ["22612", "30", "94", "264", "08-25 21:59:01"]
+                      - ["22611", "30", "94", "197", "08-25 21:58:59"]
+                      - ["22610", "30", "94", "200", "08-25 21:58:57"]
+                      - ["22609", "30", "94", "195", "08-25 21:58:55"]
+                      - ["22608", "30", "94", "191", "08-25 21:58:53"]
+                      - ...  
+        '404':
+          description: Invalid value
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/'
+  /table/action:
+    get:
+      tags:
+        - Device
+      summary: Get device table
+      description: Get device state table
+      operationId: getActionTable
+      parameters:
+        - name: page
+          in: query
+          description: Page number of table
+          required: true
+          schema:
+            type: integer
+            default: 1
+            example: 1
+        - name: led
+          in: query
+          description: Led state filter
+          required: false
+          schema:
+            type: integer
+            default: null
+            example: 1
+        - name: fan
+          in: query
+          description: Fan state filter
+          required: false
+          schema:
+            type: integer
+            default: null
+        - name: relay
+          in: query
+          description: Relay state filter
+          required: false
+          schema:
+            type: integer
+            default: null
+        - name: time
+          in: query
+          description: Date filter
+          required: false
+          schema:
+            type: string
+            example: "08/25/2024"
+      responses:
+        '200':
+          description: successful operation, return 12 row of table
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 5066
+                  totalRows:
+                    type: integer
+                    example: 60784
+                  data:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: string
+                    example:
+                      - ["61105", "0", "0", "0", "08-25 21:59:02"]
+                      - ["61103", "0", "1", "1", "08-25 21:59:01"]
+                      - ["61104", "0", "1", "0", "08-25 21:59:01"]
+                      - ["61102", "1", "1", "1", "08-25 21:58:29"]
+                      - ... 
+        '404':
+          description: Invalid value
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/'
+        default:
+          description: Default
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/'
+
+components:
+  schemas:
+    Sensor:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        temp:
+          type: integer
+          format: int64
+          example: 30
+        humid:
+          type: integer
+          format: int64
+          example: 86
+        light:
+          type: integer
+          format: int64
+          example: 324
+        time:
+          type: string
+          example: "08-25 21:58:29"
+    Action:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 100000
+        led:
+          type: integer
+          example: 1
+        relay:
+          type: integer
+          example: 1
+        time:
+          type: string
+          example: "08-25 21:58:29"

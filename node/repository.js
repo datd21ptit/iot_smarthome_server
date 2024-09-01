@@ -47,9 +47,6 @@ class AppRepository{
                 led: action[0]?.led,
                 fan: action[0]?.fan,
                 relay: action[0]?.relay,
-                temp: listTemp[listTemp.length-1],
-                humid: listHumid[listHumid.length-1],
-                light: listLight[listLight.length-1],
                 listTemp: listTemp,
                 listHumid: listHumid,
                 listLight: listLight
