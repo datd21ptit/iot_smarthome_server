@@ -182,10 +182,6 @@ paths:
           description: Invalid value
         '429':
           description: Too Many Requests
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/'
   /table/action:
     get:
       tags:
@@ -264,17 +260,9 @@ paths:
           description: Invalid value
         '429':
           description: Too Many Requests
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/'
         default:
           description: Default
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/'
-
+          
 components:
   schemas:
     Sensor:

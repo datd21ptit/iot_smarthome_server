@@ -41,7 +41,6 @@ class MqttClient{
                     } catch (error) {
                         console.log(error);
                     }
-                    
                 }
             }else if (topic === mqtt_action_topic) {
                 const msg = message.toString();
@@ -70,8 +69,8 @@ class MqttClient{
         });
     }
 
-    publishAction(topic, dat, res) {
-        this.client.publish(topic, JSON.stringify(dat), (err) => {
+    publishAction(dat, res) {
+        this.client.publish(mqtt_action_topic, JSON.stringify(dat), (err) => {
             if (err) {
                 console.error(`Failed to publish message to topic ${topic}:`, err);
             }

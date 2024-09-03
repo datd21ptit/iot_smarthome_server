@@ -14,8 +14,6 @@ class AppRepository{
         this.dbConnection = null;
         this.handleMySQLDisconnect();
     }
-
-
     handleMySQLDisconnect() {       // Ham khoi tao connection
         this.dbConnection = mysql.createConnection(db_config);
         this.dbConnection.connect(function(err) {
@@ -40,9 +38,9 @@ class AppRepository{
         try {
             // let sensor = await this.getData("sensor");
             let action = await this.getData("action");
-            let listTemp = await this.getChartData("temp");
-            let listHumid = await this.getChartData("humid");
-            let listLight = await this.getChartData("light");
+            let listTemp = await this.getChartData("temp", 5000);
+            let listHumid = await this.getChartData("humid", 1000);
+            let listLight = await this.getChartData("light", 500);
             let result = {
                 led: action[0]?.led,
                 fan: action[0]?.fan,
@@ -57,12 +55,12 @@ class AppRepository{
         }
     }
 
-    async getChartData(sensor){     // Lay du lieu chart cho dashboard voi loai cam bien sensor
+    async getChartData(sensor, limit){     // Lay du lieu chart cho dashboard voi loai cam bien sensor
         try {
             let query = "SELECT chart." + sensor +" AS valuee FROM ("
                 + "SELECT sensor." + sensor + ", sensor.time FROM sensor "
                 + "ORDER BY TIME DESC "
-                + "LIMIT 500 "
+                + "LIMIT " + limit +" "
                 + ") AS chart "
                 + "ORDER BY chart.time ASC"
             return await new Promise( (resolve, reject) => {
