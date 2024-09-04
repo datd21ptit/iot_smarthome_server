@@ -54,5 +54,14 @@ const options = {
     };
 ```
 4. Run ```node smarthome.js``` to run server
-
+## ESP8266
+1. Open ```./smartHomeEsp8266/smartHomeEsp8266.ino``` in Arduino IDE
+2. Plug ESP8266 in by a data cable
+3. Select a COM port which you pluged in and select board ```Adafruit Feather HUZZAH ESP8266```
+4. Install library
+- DHT library: ```DHT sensor library by Adafruit``` in library manager
+- ArduinoJson library: ```ArduinoJson by Benoit Blanchon```
+- ESP8266WiFi library
+- PubSubClient library
+5. Compile and upload code
 
