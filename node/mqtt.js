@@ -2,7 +2,12 @@ var mqtt = require('mqtt');
 var mqtt_sensor_topic = "sensor"
 var mqtt_action_topic = "action"
 var mqtt_initial_topic = "mytopic"
-const options = { clientId: 'ESP32', port: 1883, keepalive: 60, username: 'admin', password: '123456' };
+const options = { 
+    clientId: 'ESP32', 
+    port: 1883, 
+    keepalive: 60,
+    username: 'admin', 
+    password: '123456' };
 // const client = 
 
 let resPromiseResolver;

@@ -1,7 +1,8 @@
 const { format } = require('date-fns'); // Import the format function from date-fns
 var dateTime = require('node-datetime');
 var mysql = require('mysql');
-var db_config = {
+
+var db_config = {   
     host: "localhost",
     user: "root",
     password: "123456",
