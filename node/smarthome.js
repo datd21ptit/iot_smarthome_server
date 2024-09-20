@@ -15,16 +15,13 @@ const appRepository = new AppRepository();
 const client = new MqttClient(appRepository);
 
 // Method
-app.get('/dashboard', (req, res) => appRepository.getDashboardData(res));
+app.get('/dashboard', (req, res) => appRepository.getDashboardData(req, res));
 
 app.post('/dashboard', (req, res) => {
-    let dat = {
-        led: req.query.led,
-        fan: req.query.fan,
-        relay: req.query.relay
-    };
+    let device = req.query.device;
+    let state = req.query.state;
 
-    client.publishAction(dat, res);
+    client.publishAction(device, state, res);
   });
 
 app.get('/table/sensor', (req, res) => appRepository.getSensorTable(req, res));

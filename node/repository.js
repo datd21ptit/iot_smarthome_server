@@ -35,17 +35,19 @@ class AppRepository{
         });
     }
     
-    async getDashboardData(res){    // Ham lay du lieu dashboard
+    async getDashboardData(req, res){    // Ham lay du lieu dashboard
         try {
-            // let sensor = await this.getData("sensor");
-            let action = await this.getData("action");
-            let listTemp = await this.getChartData("temp", 5000);
-            let listHumid = await this.getChartData("humid", 1000);
-            let listLight = await this.getChartData("light", 500);
+            let limit = req.query.limit;
+
+            let action = await this.getDeviceState();
+            // console.log(action);
+            let listTemp = await this.getChartData("temp", limit);
+            let listHumid = await this.getChartData("humid", limit);
+            let listLight = await this.getChartData("light", limit);
             let result = {
-                led: action[0]?.led,
-                fan: action[0]?.fan,
-                relay: action[0]?.relay,
+                led: action['led'],
+                fan: action['fan'],
+                relay: action['relay'],
                 listTemp: listTemp,
                 listHumid: listHumid,
                 listLight: listLight
@@ -63,7 +65,7 @@ class AppRepository{
                 + "ORDER BY TIME DESC "
                 + "LIMIT " + limit +" "
                 + ") AS chart "
-                + "ORDER BY chart.time ASC"
+                + "ORDER BY chart.time ASC"; // them sap xep vao day
             return await new Promise( (resolve, reject) => {
                 this.dbConnection.query(query, (err, result) => {
                     if(err) return reject(err);
@@ -75,12 +77,20 @@ class AppRepository{
         }
     }
 
-    async getData(table){           // Lay du lieu cam bien trong bang table cua db
-        var query = "SELECT * FROM " + table + " order by time DESC LIMIT 1;"
+    async getDeviceState(){           // Lay du lieu cam bien trong bang table cua db
+        var query = "SELECT * FROM ("
+                    +"SELECT *, ROW_NUMBER() OVER (PARTITION BY device ORDER BY time DESC) AS rn "
+                    +"FROM smarthome.action "
+                    +"WHERE device IN ('led', 'fan', 'relay') "
+                    +") AS subquery "
+                    +"WHERE rn = 1;";
         return new Promise((resolve, reject) => {
             this.dbConnection.query(query, (err, result) => {
                 if(err) return reject(err);
-                return resolve(result);
+                // console.log(result);
+                let ret = {};
+                result.map(row => ret[row.device] = row.state );
+                return resolve(ret);
             })
         })
     }
@@ -118,7 +128,7 @@ class AppRepository{
             sqlQuery += ' WHERE ' + whereClauses.join(' AND ');
         }
     
-        sqlQuery += ' ORDER BY time DESC LIMIT ? OFFSET ?';
+        sqlQuery += ' ORDER BY time DESC LIMIT ? OFFSET ?';       ////// sortHere 
     
         queryParams.push(limit, offset);
         
@@ -165,6 +175,7 @@ class AppRepository{
         const limit = 12;
         const offset = (page - 1) * limit;
         const { temp, light, humid, time} = req.query;
+        const sort = req.query.sort;
         // console.log(time)
         let whereClauses = [];
         let queryParams = [];
@@ -247,13 +258,12 @@ class AppRepository{
         } catch (error) {
             console.log("Error in insertSensorData " + error.toString())
         }
-        
     }
 
-    async insertActionData(led, fan, relay) {  //Hàm Insert giá trị action
+    async insertActionData(device, state) {  //Hàm Insert giá trị action
         var dt = dateTime.create();
         var time_formatted = dt.format('Y-m-d H:M:S');
-        var sql = "INSERT INTO action(led, fan, relay, time) VALUES ('" + led + "', '" + fan + "', '" + relay + "', '" + time_formatted +  "')";
+        var sql = "INSERT INTO action(device, state, time) VALUES ('" + device + "', '" + state + "', '" + time_formatted +  "')";
         try {
             await new Promise((resolve, reject) => {
                 this.dbConnection.query(sql, function (err, result) {

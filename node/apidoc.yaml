@@ -29,6 +29,14 @@ paths:
         - Dashboard
       summary: Get dashboard screen data
       description: Get dashboard screen data
+      parameters:
+        - name: limit
+          in: query
+          description: Number of value for chart
+          required: true
+          schema:
+            type: integer
+            example: 100
       operationId: getDashboardData
       responses:
         '200':
@@ -78,27 +86,20 @@ paths:
       description: Modify device state
       operationId: clickAction
       parameters:
-        - name: led
+        - name: device
           in: query
-          description: The status of LED device
+          description: Name of device. This must be led/fan/relay
           required: true
           schema:
-            type: integer
-            example: 1
-        - name: fan
+            type: string
+            example: "led"
+        - name: state
           in: query
-          description: The status of the fan device
+          description: The status of device. This must be on/off string
           required: true
           schema:
-            type: integer
-            example: 0
-        - name: relay
-          in: query
-          description: The status of the relay device
-          required: true
-          schema:
-            type: integer
-            example: 1
+            type: string
+            example: "on"
       responses:
         '200':
           description: Modify successfully

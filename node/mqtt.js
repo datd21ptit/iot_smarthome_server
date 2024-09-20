@@ -74,7 +74,11 @@ class MqttClient{
         });
     }
 
-    publishAction(dat, res) {
+    publishAction(device, state, res) {
+        let dat = {
+            device: device,
+            state: state,
+        }
         this.client.publish(mqtt_action_topic, JSON.stringify(dat), (err) => {
             if (err) {
                 console.error(`Failed to publish message to topic ${topic}:`, err);
@@ -83,7 +87,7 @@ class MqttClient{
         new Promise((resolve) => {
             resPromiseResolver = resolve;
         }).then(() => {
-            this.appRepository.insertActionData(dat.led, dat.fan, dat.relay);
+            this.appRepository.insertActionData(device, state);
             return res.status(200).send();
         });
     }
