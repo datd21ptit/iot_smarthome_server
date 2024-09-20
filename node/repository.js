@@ -97,10 +97,13 @@ class AppRepository{
 
     async getSensorTable(req, res){ // Lay du lieu cho trang Table
         const page = parseInt(req.query.page)
-        const limit = 12;
+        const limit = parseInt(req.query.limit);
         const offset = (page - 1) * limit;
         const { temp, light, humid, time} = req.query;
-        // console.log(time)
+        const sort = req.query.sort;
+        
+        // console.log(sort);
+        // console.log(typeof sort);
         let whereClauses = [];
         let queryParams = [];
         if(temp){
@@ -127,15 +130,43 @@ class AppRepository{
         if (whereClauses.length > 0) {
             sqlQuery += ' WHERE ' + whereClauses.join(' AND ');
         }
-    
-        sqlQuery += ' ORDER BY time DESC LIMIT ? OFFSET ?';       ////// sortHere 
+        let orderByClauses = [];
+        // add sort:
+        if(Array.isArray(sort)){
+            sort.forEach( item =>{
+                // console.log(typeof item);
+                const tmp = JSON.parse(item);
+                // console.log(tmp);
+                const col = tmp['column'];
+                const ord = tmp['order'];
+                if(col && (ord === 'asc' || ord === 'desc')){
+                    orderByClauses.push(` ${col} ${ord}`);
+                }
+            })
+        }else if(sort !== undefined){
+            const tmp = JSON.parse(sort);
+            const col = tmp['column'];
+            const ord = tmp['order'];
+            if(col && (ord === 'asc' || ord === 'desc')){
+                orderByClauses.push(` ${col} ${ord}`);
+            }
+        }
+
+        if(orderByClauses.length > 0){
+            sqlQuery += ' ORDER BY ' + orderByClauses.join(', ');
+        }
+
+        sqlQuery += ' LIMIT ? OFFSET ?';       ////// sortHere 
     
         queryParams.push(limit, offset);
         
+        console.log(sqlQuery);
         try {
-            let ret = await new Promise( (resolve, reject) => {
+            let ret = await new Promise((resolve, reject) => {
                 this.dbConnection.query(sqlQuery, queryParams, (err, result) => {
-                    if(err) reject(err);
+                    if(err){
+                        reject(err);
+                    } 
                     resolve(result);
                 })
             })
@@ -146,7 +177,9 @@ class AppRepository{
             }
             let total = await new Promise((resolve, reject) => {
                 this.dbConnection.query(countQuery, queryParams.slice(0, -2), (err, countResult) => { // Remove limit and offset from params for count
-                    if (err) reject(err);
+                    if(err){
+                        reject(err);
+                    } 
                     const totalRows = countResult[0].total;
                     const totalPages = Math.ceil(totalRows / limit);
 
@@ -170,9 +203,11 @@ class AppRepository{
 
     }
 
+
+
     async getActionTable(req, res){ // Lay du lieu cho trang Table
         const page = parseInt(req.query.page)
-        const limit = 12;
+        const limit = parseInt(req.query.limit);
         const offset = (page - 1) * limit;
         const { temp, light, humid, time} = req.query;
         const sort = req.query.sort;

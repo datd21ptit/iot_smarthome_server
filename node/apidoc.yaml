@@ -49,14 +49,14 @@ paths:
                   type: object
                   properties:
                     led:
-                      type: integer
-                      example: 0
+                      type: string
+                      example: on
                     fan:
-                      type: integer
-                      example: 1
+                      type: string
+                      example: on
                     relay:
-                      type: integer
-                      example: 1
+                      type: string
+                      example: off
                     listTem:
                       type: array
                       items:
@@ -119,6 +119,14 @@ paths:
             type: integer
             default: 1
             example: 1
+        - name: limit
+          in: query
+          description: Limit of a page
+          required: true
+          schema:
+            type: integer
+            default: 12
+            example: 12
         - name: temp
           in: query
           description: Temperature filter
@@ -126,7 +134,7 @@ paths:
           schema:
             type: integer
             default: null
-            example: 30
+            example:
         - name: humid
           in: query
           description: Humidity filter
@@ -148,6 +156,17 @@ paths:
           schema:
             type: string
             example: "08/25/2024"
+        - name: sort
+          in: query
+          description: Sort table by columns and order
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              example: { "column": "time", "order": "desc"}
+            
+
       responses:
         '200':
           description: successful operation, return 12 row of table
