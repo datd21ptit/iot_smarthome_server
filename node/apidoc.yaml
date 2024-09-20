@@ -218,35 +218,43 @@ paths:
             type: integer
             default: 1
             example: 1
-        - name: led
+        - name: limit
           in: query
           description: Led state filter
           required: false
           schema:
             type: integer
-            default: null
-            example: 1
-        - name: fan
+            default: 12
+            example: 12
+        - name: device
           in: query
-          description: Fan state filter
-          required: false
-          schema:
-            type: integer
-            default: null
-        - name: relay
-          in: query
-          description: Relay state filter
-          required: false
-          schema:
-            type: integer
-            default: null
-        - name: time
-          in: query
-          description: Date filter
+          description: Search by device (led/fan/relay)
           required: false
           schema:
             type: string
-            example: "08/25/2024"
+            default: null
+        - name: state
+          in: query
+          description: Search by state (on/off)
+          required: false
+          schema:
+            type: string
+            default: null
+        - name: time
+          in: query
+          description: Date filter (mm/dd/yyyy)
+          required: false
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Sort table by columns and order
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              example: { "column": "time", "order": "desc"}
       responses:
         '200':
           description: successful operation, return 12 row of table
@@ -271,10 +279,10 @@ paths:
                       items:
                         type: string
                     example:
-                      - ["61105", "0", "0", "0", "08-25 21:59:02"]
-                      - ["61103", "0", "1", "1", "08-25 21:59:01"]
-                      - ["61104", "0", "1", "0", "08-25 21:59:01"]
-                      - ["61102", "1", "1", "1", "08-25 21:58:29"]
+                      - ["61105", "led", "on",  "08-25 21:59:02"]
+                      - ["61103", "led", "off",  "08-25 21:59:01"]
+                      - ["61104", "fan", "on", "08-25 21:59:01"]
+                      - ["61102", "relay", "off", "08-25 21:58:29"]
                       - ... 
         '404':
           description: Invalid value

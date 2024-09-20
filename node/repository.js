@@ -208,23 +208,19 @@ class AppRepository{
     async getActionTable(req, res){ // Lay du lieu cho trang Table
         const page = parseInt(req.query.page)
         const limit = parseInt(req.query.limit);
+        const {device, state, time} = req.query;
         const offset = (page - 1) * limit;
-        const { temp, light, humid, time} = req.query;
         const sort = req.query.sort;
-        // console.log(time)
+
         let whereClauses = [];
         let queryParams = [];
-        if(temp){
-            whereClauses.push('led = ?');
-            queryParams.push(temp);
+        if(device){
+            whereClauses.push('device = ?');
+            queryParams.push(device);
         }
-        if (light) {
-            whereClauses.push('fan = ?');
-            queryParams.push(light);
-        }
-        if (humid) {
-            whereClauses.push('relay = ?');
-            queryParams.push(humid);
+        if (state) {
+            whereClauses.push('state = ?');
+            queryParams.push(state);
         }
         if (time) {
             const [month, day, year] = time.split('/');
@@ -239,7 +235,32 @@ class AppRepository{
             sqlQuery += ' WHERE ' + whereClauses.join(' AND ');
         }
     
-        sqlQuery += ' ORDER BY time DESC LIMIT ? OFFSET ?';
+        let orderByClauses = [];
+        if(Array.isArray(sort)){
+            sort.forEach( item =>{
+                // console.log(typeof item);
+                const tmp = JSON.parse(item);
+                // console.log(tmp);
+                const col = tmp['column'];
+                const ord = tmp['order'];
+                if(col && (ord === 'asc' || ord === 'desc')){
+                    orderByClauses.push(` ${col} ${ord}`);
+                }
+            })
+        }else if(sort !== undefined){
+            const tmp = JSON.parse(sort);
+            const col = tmp['column'];
+            const ord = tmp['order'];
+            if(col && (ord === 'asc' || ord === 'desc')){
+                orderByClauses.push(` ${col} ${ord}`);
+            }
+        }
+        if(orderByClauses.length > 0){
+            sqlQuery += ' ORDER BY ' + orderByClauses.join(', ');
+        }
+
+        sqlQuery += ' LIMIT ? OFFSET ?'; 
+
     
         queryParams.push(limit, offset);
         
@@ -269,7 +290,7 @@ class AppRepository{
                     resolve(js);
                 });
             })
-            const data = ret.map( item => [item.id.toString(), item.led.toString(), item.fan.toString(), item.relay.toString(), format(new Date(item.time), 'MM-dd HH:mm:ss')])
+            const data = ret.map( item => [item.id.toString(), item.device, item.state,  format(new Date(item.time), 'MM-dd HH:mm:ss')])
             total.data = data;
 
             res.send(JSON.stringify(total));
