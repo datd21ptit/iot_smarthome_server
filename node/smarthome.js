@@ -18,9 +18,10 @@ const client = new MqttClient(appRepository);
 app.get('/dashboard', (req, res) => appRepository.getDashboardData(req, res));
 
 app.post('/dashboard', (req, res) => {
-    let device = req.query.device;
-    let state = req.query.state;
-
+    let device = req.query.device
+    let state = req.query.state
+    console.log(device);
+    console.log(state);
     client.publishAction(device, state, res);
   });
 

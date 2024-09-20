@@ -52,7 +52,7 @@ class AppRepository{
                 listHumid: listHumid,
                 listLight: listLight
             };
-            res.send(JSON.stringify([result])) ;
+            res.send(JSON.stringify(result)) ;
         } catch (error) {
             console.log("Error in getLatestData" + error.toString());
         }
