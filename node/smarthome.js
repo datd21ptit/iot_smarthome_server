@@ -17,12 +17,19 @@ const client = new MqttClient(appRepository);
 // Method
 app.get('/dashboard', (req, res) => appRepository.getDashboardData(req, res));
 
+let listDevice = ["led", "fan", "relay"]
+
 app.post('/dashboard', (req, res) => {
     let device = req.query.device
     let state = req.query.state
-    console.log(device);
-    console.log(state);
-    client.publishAction(device, state, res);
+    // console.log(device);
+    // console.log(state);
+    
+    if(listDevice.includes(device) && ["on", "off"].includes(state)){
+      client.publishAction(device, state, res);
+    }else{
+      res.status(415).send()
+    }
   });
 
 app.get('/table/sensor', (req, res) => appRepository.getSensorTable(req, res));

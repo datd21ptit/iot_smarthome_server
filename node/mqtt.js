@@ -34,11 +34,11 @@ class MqttClient{
                 appRepository.insertSensorData(jsonObject["temp"], jsonObject["humid"], jsonObject["light"]);
             }else if(topic == mqtt_initial_topic){
                 if(msg_str == "esp_setup"){
-                    let latest = await appRepository.getData("action");
+                    let latest = await appRepository.getDeviceState();
                     let ret = {
-                        fan: latest[0]?.fan,
-                        led: latest[0]?.led,
-                        relay: latest[0]?.relay
+                        fan: latest.fan,
+                        led: latest.led,
+                        relay: latest.relay
                     }
                     console.log("initital " + JSON.stringify(ret));
                     try {

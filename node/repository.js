@@ -38,12 +38,12 @@ class AppRepository{
     async getDashboardData(req, res){    // Ham lay du lieu dashboard
         try {
             let limit = req.query.limit;
-
             let action = await this.getDeviceState();
             // console.log(action);
             let listTemp = await this.getChartData("temp", limit);
             let listHumid = await this.getChartData("humid", limit);
             let listLight = await this.getChartData("light", limit);
+            
             let result = {
                 led: action['led'],
                 fan: action['fan'],
@@ -98,6 +98,7 @@ class AppRepository{
     async getSensorTable(req, res){ // Lay du lieu cho trang Table
         const page = parseInt(req.query.page)
         const limit = parseInt(req.query.limit);
+        // console.log(limit);
         const offset = (page - 1) * limit;
         const { temp, light, humid, time} = req.query;
         const sort = req.query.sort;
@@ -132,6 +133,7 @@ class AppRepository{
         }
         let orderByClauses = [];
         // add sort:
+        // console.log(sort)
         if(Array.isArray(sort)){
             sort.forEach( item =>{
                 // console.log(typeof item);
@@ -143,11 +145,12 @@ class AppRepository{
                     orderByClauses.push(` ${col} ${ord}`);
                 }
             })
-        }else if(sort !== undefined){
+        }else if(sort !== undefined && sort !== ""){
+            // console.log("defiened ");
             const tmp = JSON.parse(sort);
             const col = tmp['column'];
             const ord = tmp['order'];
-            if(col && (ord === 'asc' || ord === 'desc')){
+            if(col && (ord === 'ASC' || ord === 'DESC')){
                 orderByClauses.push(` ${col} ${ord}`);
             }
         }
@@ -155,12 +158,13 @@ class AppRepository{
         if(orderByClauses.length > 0){
             sqlQuery += ' ORDER BY ' + orderByClauses.join(', ');
         }
-
+        // console.log(sort);
+        // console.log(orderByClauses);
         sqlQuery += ' LIMIT ? OFFSET ?';       ////// sortHere 
     
         queryParams.push(limit, offset);
-        
-        console.log(sqlQuery);
+        // console.log(limit);
+        // console.log(sqlQuery);
         try {
             let ret = await new Promise((resolve, reject) => {
                 this.dbConnection.query(sqlQuery, queryParams, (err, result) => {
@@ -251,7 +255,7 @@ class AppRepository{
             const tmp = JSON.parse(sort);
             const col = tmp['column'];
             const ord = tmp['order'];
-            if(col && (ord === 'asc' || ord === 'desc')){
+            if(col && (ord === 'ASC' || ord === 'DESC')){
                 orderByClauses.push(` ${col} ${ord}`);
             }
         }

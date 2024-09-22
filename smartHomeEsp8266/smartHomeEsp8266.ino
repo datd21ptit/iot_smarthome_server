@@ -101,6 +101,12 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
     mqtt_client.publish(mqtt_action_topic, "True");
   }else if(strcmp(topic, mqtt_initial_topic) == 0){
     // handleDeviceControl(docs);
+    int led = docs["led"] == "on" ? 1: 0;
+    int fan = docs["fan"] == "on" ? 1: 0;
+    int relay = docs["relay"] == "on" ? 1: 0;
+    digitalWrite(ledPin, led);      
+    digitalWrite(fanPin, fan);
+    digitalWrite(relayPin, relay);
   }
 }
 
